@@ -336,8 +336,8 @@ XBT:(.+),(.+) $(\\2mm: bitcoin, bitcoins, de bitcoins, satoshi, satoshis, \\1) #
 (.*)díhuit \\2dihuitè # [:ca-valencia:] [:ca-ES-valencia:]
 (.*)[ae] \\2é # [:ca-valencia:] [:ca-ES-valencia:]
 (.*)[ae] \\2è
-(.*) \\2é # [:ca-valencia:] [:ca-ES-valencia:]
-(.*) \\2è
+(.*)\\D \\2é # [:ca-valencia:] [:ca-ES-valencia:]
+(.*)\\D \\2è
 
 == ordinal-feminine ==
 
