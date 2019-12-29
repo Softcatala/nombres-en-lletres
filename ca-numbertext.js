@@ -8,8 +8,10 @@ var rules=`
 5 cinc
 6 sis
 7 set
+8 huit # [:ca-valencia:] [:ca-ES-valencia:]
 8 vuit
 9 nou
+#10-19
 10 deu
 11 onze
 12 dotze
@@ -17,71 +19,196 @@ var rules=`
 14 catorze
 15 quinze
 16 setze
+17 dèsset # [:ca-valencia:] [:ca-ES-valencia:]
 17 disset
+18 devuit # [:ca-balear:] [:ca-ES-balear:]
+18 díhuit # [:ca-valencia:] [:ca-ES-valencia:]
+19 denou # [:ca-balear:] [:ca-ES-balear:]
+19 dènou # [:ca-valencia:] [:ca-ES-valencia:]
 1(\\d) di$1
+# 20-29
 20 vint
 2(\\d) vint-i-$1
+# 30, 40, 50, 60, 70, 80, 90
 30 trenta
 40 quaranta
 50 cinquanta
 60 seixanta
 70 setanta
+80 huitanta # [:ca-valencia:] [:ca-ES-valencia:]
 80 vuitanta
 90 noranta
 (\\d)(\\d) $(\\10)-$2
-1(\\d\\d) cent[ $1]
-(\\d)(\\d\\d) $1-cents[ $2]
-1(\\d{3}) mil[ $1]
-(\\d{1,3})(\\d{3}) $1 mil[ $2]
-1(\\d{6}) un milió[ $1]
-(\\d{1,6})(\\d{6}) $1 milions[ $2]
-1(\\d{9}) mil milions[ $1]
-1(\\d{12}) un bilió[ $1]
-(\\d{1,6})(\\d{12}) $1 bilions[ $2]
-1(\\d{18}) un trilió[ $1]
-(\\d{1,6})(\\d{18}) $1 trilions[ $2]
-1(\\d{24}) un quadrilió[ $1]
-(\\d{1,6})(\\d{24}) $1 quadrilions[ $2]
+
+#100-199
+100 cent
+1(\\d\\d) cent $1
+#200-999
+(\\d)00 $1-cents
+(\\d)(\\d\\d) $1-cents $2
+
+#1000-1999
+1000 mil
+1(\\d{3}) mil $1
+
+#2000-999999
+(\\d{1,3})000 $1 mil
+(\\d{1,3})(\\d{3}) $1 mil $2
+
+# our limit is number <10^606
+(\\d{606,}) ""
+
+# x-lions
+# 10000000=10^6 -> un milió
+1((0{6})+) un $(pre:$(count:\\1))lió
+1((\\d{6})+) un $(pre:$(count:\\1))lió $1
+# 2000000=2·10^6 -> dos milions
+(\\d{1,3})((0{6})+) $1 $(pre:$(count:\\2))lions
+(\\d{1,3})((\\d{6})+) $1 $(pre:$(count:\\2))lions $2
+
+# x-liards
+# 10000000000=10^9 -> un miliard
+1(000(0{6})+) un $(pre:$(count:\\1))liard
+1(\\d{3}(\\d{6})+) un $(pre:$(count:\\1))liard $1
+# 2000000000=2·10^9 -> dos miliards
+(\\d{1,3})(000(0{6})+) $1 $(pre:$(count:\\2))liards
+(\\d{1,3})(\\d{3}(\\d{6})+) $1 $(pre:$(count:\\2))liards $2
+
+
+# sometimes, we avoid -liard terms and use "thousand -lion" instead
+no-liard:(\\d{4,6})((0{6})+) $1 $(pre:$(count:\\2))lions
+no-liard:(\\d{4,6})((\\d{6})+) $1 $(pre:$(count:\\2))lions $3
+no-liard:(.*) $1
+
+# count number of 10^6, usefull for x-lions, and x-liards prefixes.
+count:.{0,5}? 0
+count:.{6}.{0,5} 1
+count:(.{12}).{0,5} 2
+count:(.{18}).{0,5} 3
+count:(.{24}).{0,5} 4
+count:(.{30}).{0,5} 5
+count:(.{36}).{0,5} 6
+count:(.{42}).{0,5} 7
+count:(.{48}).{0,5} 8
+count:(.{54}).{0,5} 9
+count:(.{60})(.{0,59}) 1|$(count:\\2)
+count:(.{120})(.{0,59}) 2|$(count:\\2)
+count:(.{180})(.{0,59}) 3|$(count:\\2)
+count:(.{240})(.{0,59}) 4|$(count:\\2)
+count:(.{300})(.{0,59}) 5|$(count:\\2)
+count:(.{360})(.{0,59}) 6|$(count:\\2)
+count:(.{420})(.{0,59}) 7|$(count:\\2)
+count:(.{480})(.{0,59}) 8|$(count:\\2)
+count:(.{540})(.{0,59}) 9|$(count:\\2)
+count:(.{600})(.{0,5}) 10|$(count:\\2) # our limit is 10^606-1
+
+# prefixes needed for x-lions and x-liards, up to 10^606-1
+pre:1 mi
+pre:2 bi
+pre:3 tri
+pre:4 quadri
+pre:5 quinti
+pre:6 sexti
+pre:7 septi
+pre:8 octi
+pre:9 noni
+pre:10 deci
+pre:1(\\d) $(pre2:\\1)|deci
+pre:(\\d)0 $(pre3:\\1)
+pre:(\\d)(\\d) $(pre2:\\2)|$(pre3:\\1)
+pre:100 centi
+
+pre2:1 uno
+pre2:2 duo
+pre2:3 tre
+pre2:4 quattour
+pre2:5 quin
+pre2:6 sex
+pre2:7 septen
+pre2:8 octo
+pre2:9 novem
+
+pre3:1 deci
+pre3:2 viginti
+pre3:3 triginti
+pre3:4 quadraginti
+pre3:5 quinquaginti
+pre3:6 sexaginti
+pre3:7 septuaginti
+pre3:8 octoginti
+pre3:9 nonoginti
+pre3:10 centi
 
 # negative number
-
-[-−](\\d+) menys |$1
+[--](\\d+) menys |$1
 
 # decimals
+"([--]?\\d+)([.,]0*)?" $1
+"([--]?\\d+)[.,](\\d*)" $(\\1·\\2)
+"([--]?\\d+·0*)([^0]00?)0*" $1| |$2
+"([--]?\\d+·0*)([^0])" $1| |$2
+"([--]?\\d+·0*)([^0]\\d)" $1| |$2
+"([--]?\\d+·0*)([^0]\\d\\d)" $1| |$2
+"([--]?\\d+·0*)([^0]\\d\\d)0*" $1| |$2
 
-"([-−]?\\d+)[.,]" |$1| coma
-"([-−]?\\d+[.,]\\d*)(\\d)" $1| |$2
+"([--]?\\d+·0*)(([^0]|[^0]\\d*[^0]))0*" $1| $(read:\\2)
+"([--]?\\d+)·(\\d*)(\\d)" $(\\1·\\2)| |$3
+"([--]?\\d+)·" $1| coma
 
-# currency
+# used for decimal part
+#read:(\\d*[^0])0*$ $(read:\\1)
+read:(\\d*[1-9])(00+)([1-9]\\d*) $(read:\\1)| |$(read:\\2) |$(read:\\3)
+read:(\\d$) $1
+read:0(\\d+) $(read:0)| |$(read:\\1)
+read:([1-9]\\d) $1
+read:([1-9]\\d\d) $1
+read:(\\d\\d\\d) $1
+read:(\\d\\d)((\\d\\d)+) $(read:\\1)| |$(read:\\2)
+read:(\\d\\d)((\\d\\d)*)(\\d\\d\\d) $(read:\\1)| |$(read:\\2)| |$(read:\\4)
 
-# convert masculine to feminine
 
-f:(.*ili)(.*) \\1$(f:\\2) # convert only <1000000
-f:(.*u)n([^a].*|$) $(f:\\1na\\2) # un -> una
-f:(.*d)o(s.*) $(f:\\1ue\\2) # dos -> dues
+# convert masculine forms to feminine forms
+# it can be run after: standard number conversion; and after ord, ord2, part functions.
+## runned with feminine function.
+f:(.*iliard)(.*) \\1$(f:\\2) # convert only <1,000,000,000
+f:(.*ili)(.*) \\1$(f:\\2) # convert only <100,0000
+f:(.*d)o(s[^èé]*) $(f:\\1ue\\2) # 2 -> dos -> dues
 f:(.*cent)(s.*) $(f:\\1e\\2) # cents -> centes
+f:(((.*)[^a-zèé]|))u$ \\1una # vint-i-u -> vint-i-una
+## runned after ord function.
+f:(.*[^0-9])n$ \\1na # segon -> segona
+f:(.*[^0-9]r)$ \\1a # tercer -> tercera
+f:(.*[^0-9]r)t$ \\1ta # quart -> quarta
+f:(.*[^0-9])è$ \\1ena # sisè -> sisena
+f:(.*[^0-9])é$ \\1ena # sisé -> sisena
+## runned after ord2 function.
+f:(.*[0-9])[nrtè]$ \\1a # 2n -> 2a
+## runnded after part function.
+f:(.*ter)ç$ \\1cera # terç -> tercera
+f:(.*è[sc]i)m$ \\1ma # milionèsim -> milionèsima
+f:(.*[^0-9]i)g$ \\1tja # mig -> mitja
+
+
+# fallback, ignore 1-letter not-defined fuctions
 .:(.*) \\1
 
-# unit/subunit singular/plural
 
+# unit/subunit singular/plural
 # million or greater part of the number name separated by "ili" pattern
 # before masculine to feminine conversion
-
-us(.).:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) $(\\1:\\7) \\2
-up(.).:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) $(\\1:\\7) \\3
-ud(.).:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) $(\\1:\\7) \\4
-ss.(.):([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) $(\\1:\\7) \\5
-sp.(.):([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) $(\\1:\\7) \\6
+us(.).:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) $(\\1:\\7)| \\2
+up(.).:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) $(\\1\:\\7)| \\3
+ud(.).:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) $(\\1\:\\7)| \\4
+ss.(.):([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) $(\\1\:\\7)| \\5
+sp.(.):([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) $(\\1\:\\7)| \\6
 
 # "mm" means masculine unit and masculine subunit
-
 # Usually used by Catalan users
 CHF:(.+),(.+) $(\\2mm: franc suís, francs suïssos, de francs suïssos, cèntim, cèntims, \\1)
 EUR:(.+),(.+) $(\\2mm: euro, euros, d'euros, cèntim, cèntims, \\1)
 GBP:(.+),(.+) $(\\2fm: lliura esterlina, lliures esterlines, de lliures esterlines, penic, penics, \\1)
 JPY:(.+),(.+) $(\\2mm: ien, iens, de iens, sen, sen, \\1)
-USD:(.+),(.+) $(\\2mm: dòlar EUA, dòlars EUA, de dòlars EUA, centau, centaus, \\1)
-
+USD:(.+),(.+) $(\\2mm: dòlar dels EUA, dòlars dels EUA, de dòlars dels EUA, centau, centaus, \\1)
 # ACTIVE ISO 4217 CODES--A--
 AED:(.+),(.+) $(\\2mm: dírham dels Emirats Àrabs Units, dírhams dels Emirats Àrabs Units, de dírhams dels Emirats Àrabs Units, fils, fulús, \\1)
 AFN:(.+),(.+) $(\\2mm: afgani, afganis, d'afganis, puli, puli, \\1)
@@ -93,7 +220,6 @@ ARS:(.+),(.+) $(\\2mm: peso argentí, pesos argentins, de pesos argentins, centa
 AUD(.+),(.+) $(\\2mm: dòlar australià, dòlars australians, de dòlars australians, centau, centaus, \\1)
 AWG:(.+),(.+) $(\\2mm: florí d'Aruba, florins d'Aruba, de florins d'Aruba, cèntim, cèntims, \\1)
 AZN:(.+),(.+) $(\\2mm: manat azerbaidjanès, manats azerbaidjanesos, de manats azerbaidjanesos, qəpik, qəpik, \\1)
-
 # ACTIVE ISO 4217 CODES --X--
 #XAF Franc CFA emès pel BEAC (Banc dels Estats de l'Àfrica Central)
 XAG:(.+),(.+) $(\\2fm: unça de plata, unces de plata, d'unces de plata, cèntim, cèntims, \\1)
@@ -111,7 +237,6 @@ XPD:(.+),(.+) $(\\2fm: unça de pal·ladi, unces de pal·ladi, d'unces de pal·l
 XPT:(.+),(.+) $(\\2fm: unça de platí, unces de platí, d'unces de platí, cèntim, cèntims, \\1)
 #XTS Codi reservat per a proves
 #XXX Sense moneda, sense transacció monetària
-
 # OBSOLETE ISO 4217 CODES --Replaced by EUR--
 ADF:(.+),(.+) $(\\2mm: franc andorrà, francs andorrans, de francs andorrans, cèntim, cèntims, \\1)
 ADP:(.+),(.+) $(\\2fm: pesseta andorrana, pessetes andorranes, de pessetes andorranes, cèntim, cèntims, \\1)
@@ -136,13 +261,42 @@ SML:(.+),(.+) $(\\2fm: lira de San Marino, lires de San Marino, de lires de San 
 VAL:(.+),(.+) $(\\2fm: lira vaticana, lires vaticanes, de lires vaticanes, cèntim, cèntims, \\1)
 XEU:(.+),(.+) $(\\2mm: ecu, ecus, d'ecus, cèntim, cèntims, \\1)
 
-"([A-Z]{3}) ([-−]?[01])([.,]00?)?"$(\\1:|$2,us)
-"([A-Z]{3}) ([-−]?\\d+0{6,})([.,]00?)?"$(\\1:|$2,ud)
-"([A-Z]{3}) ([-−]?\\d+)([.,]00?)?"$(\\1:|$2,up)
+#crypto-currencies
+XMR:(.+),(.+) $(\\2mm: monero, moneros, de moneros, piconero, piconeros, \\1) #TODO: 1,000,000,000,000 piconeros = 1 monero
+XBT:(.+),(.+) $(\\2mm: bitcoin, bitcoins, de bitcoins, satoshi, satoshis, \\1) # TODO: 10,000,000 satoshis = 1,000 millibitcoin = 1 bitcoin
 
-"(([A-Z]{3}) [-−]?\\d+)[.,](01)" $1 amb$(\\2:un,ss)
-"(([A-Z]{3}) [-−]?\\d+)[.,](\\d)" $1 amb$(\\2:|$(\\30),sp)
-"(([A-Z]{3}) [-−]?\\d+)[.,](\\d\\d)" $1 amb$(\\2:|$3,sp)
+# unknow currency
+[A-Z]{3}:.* ""
+
+"([A-Z]{3}) ([-−]?1)([.,]00?)?" $(\\1:|$2,us)
+"([A-Z]{3}) ([-−]?\\d+0{6,})([.,]00?)?" $(\\1:|$2,ud)
+"([A-Z]{3}) ([-−]?\\d+)([.,]00?)?" $(\\1:|$2,up)
+"(([A-Z]{3}) [-−]?\\d+)[.,](01)" $1 amb $(\\2:un,ss)
+"(([A-Z]{3}) [-−]?\\d+)[.,](\\d)" $1 amb $(\\2:|$(\\30),sp)
+"(([A-Z]{3}) [-−]?\\d+)[.,](\\d\\d)" $1 amb $(\\2:|$3,sp)
+
+# "([-−]?\\d+)([.,]\\d\+)? ([A-Z]{3})$" $(\\3 \\1 \\2)
+"([-−]?\\d+)([.,]\\d\+)? ([A-Z]{3})" $(\\3 \\1\\2)
+
+
+# currency symbols
+"€[ ]?([^ ]*)" $(EUR \\1)
+"£[ ]?([^ ]*)" $(GBP \\1)
+"\\$[ ]?([^ ]*)" $(USD \\1)
+"¥[ ]?([^ ]*)" $(JPY \\1)
+"₩[ ]?([^ ]*)" $(KRW \\1)
+"₽[ ]?([^ ]*)" $(RUB \\1)
+"ɱ[ ]?([^ ]*)" $(XMR \\1)
+"₿[ ]?([^ ]*)" $(XBT \\1)
+
+"([^ ]+)[ ]?€$" $(EUR \\1)
+"([^ ]+)[ ]?£$" $(GBP \\1)
+"([^ ]+)[ ]?\$$" $(USD \\1)
+"([^ ]+)[ ]?¥$" $(JPY \\1)
+"([^ ]+)[ ]?₩$" $(KRW \\1)
+"([^ ]+)[ ]?₽$" $(RUB \\1)
+"([^ ]+)[ ]?ɱ$" $(XMR \\1)
+"([^ ]+)[ ]?₿$" $(XBT \\1)
 
 == feminine ==
 
@@ -156,67 +310,130 @@ XEU:(.+),(.+) $(\\2mm: ecu, ecus, d'ecus, cèntim, cèntims, \\1)
 
 == ordinal(-masculine)? ==
 
-0 ""
+([-−]\\d+) ""
+\\d+[,.] ""
+0 zeroé # [:ca-valencia:] [:ca-ES-valencia:]
+0 zeroè
 1 primer
 2 segon
 3 tercer
 4 quart
-([-−]\\d+) ""
-(\\d+) $(ordinal |$2)
-
-(.*)nou \\2novè
-(.*)deu \\2desè
-#"(.*[ -])u(na?)?" \\2unè
-#"(.* )dos" \\2dosè
-#"(.* )tres" \\2tresè
-#"(.* q|q)uatre" \\2uatrè
-(.*)cinc \\2cinquè
-(.*)[ae] \\2è
-(.*(cent|mil|ion))s? \\2è
+(\\d+)$ $(ordinal $2)
+"un ([^ ]*(ilió|iliard))$" $(ordinal \\2)
 (.*li)ó \\2onè
+(.*(cent|mil|ion|iliard))s? \\2è
+"(.* )u" \\2uné # [:ca-valencia:] [:ca-ES-valencia:]
+"(.* )u" \\2unè
+(.*-)u \\2uné # [:ca-valencia:] [:ca-ES-valencia:]
+(.*-)u \\2unè
+(.*)cinc \\2cinqué # [:ca-valencia:] [:ca-ES-valencia:]
+(.*)cinc \\2cinquè
+(.*)dènou \\2denové # [:ca-valencia:] [:ca-ES-valencia:]
+(.*)nou \\2nové # [:ca-valencia:] [:ca-ES-valencia:]
+(.*)nou \\2novè
+(.*)deu \\2desé # [:ca-valencia:] [:ca-ES-valencia:]
+(.*)deu \\2desè
+(.*)díhuit \\2dihuitè # [:ca-valencia:] [:ca-ES-valencia:]
+(.*)[ae] \\2é # [:ca-valencia:] [:ca-ES-valencia:]
+(.*)[ae] \\2è
+(.*) \\2é # [:ca-valencia:] [:ca-ES-valencia:]
 (.*) \\2è
 
 == ordinal-feminine ==
 
-([-−]?\\d+) $(ordinal-feminine $(ordinal-masculine \\1))
-(.*)è \\1ena
-(.*) \\1a
+([-−]\\d+) ""
+(\\d+) $(f:$(ordinal-masculine \\1))
 
-== (ordinal)-number(-feminine|-masculine)? ==
+== ordinal-number(-masculine)? ==
 
-([-−]?\\d+) \\3$(ordinal-number $(\\1\\2 \\3))
-.*(.) \\3
+#(\\d+) $(o:\\2)
+1$ 1r
+2$ 2n
+3$ 3r
+4$ 4t
+(\\d+)$ \\2é # [:ca-valencia:] [:ca-ES-valencia:]
+(\\d+)$ \\2è
+
+== ordinal-number-feminine ==
+
+(\\d+)$ \\1a
+
 
 == help ==
 
 "" $(1)|, $(2), $(3)\\n$(help feminine)$(help masculine)$(help ordinal-number-masculine)$(help ordinal-number-feminine)$(help ordinal-feminine)$(help ordinal-masculine)
 (feminine|masculine|ordinal(-number)?(-feminine|-masculine)?) \\1: $(\\1 1), $(\\1 2), $(\\1 3)\\n
 `
-
- var numlang=new Soros(rules, 'ca');
+ var lang = "ca";
+ var numlang=new Soros(rules, lang);
+ 
  document.getElementById('nombre').focus();
+ 
+ UpdateNumbertextRules();
+ 
  function ConvertNumberToText() {
-  var num = document.getElementById("nombre").value;
+  var num = document.getElementById("nombre").value.trim();
   var resultat="";
+  var warning="";
+  var currency = numlang.run(num).replace(/\n/g,"<br>");
   var cardinal_masc = numlang.run("masculine " + num).replace(/\n/g,"<br>");
   var cardinal_fem = numlang.run("feminine " + num).replace(/\n/g,"<br>");
   var ordinal = numlang.run("ordinal " + num).replace(/\n/g,"<br>");
+  var ordinal_number = numlang.run("ordinal-number " + num).replace(/\n/g,"<br>");
   var ordinal_fem = numlang.run("ordinal-feminine " + num).replace(/\n/g,"<br>");
+  var ordinal_number_fem = numlang.run("ordinal-number-feminine " + num).replace(/\n/g,"<br>");
+  var flag_one= false;
+  
+  if(num.length > 605) {
+    resultat = "<b>Atenció</b>: el nombre ha ser inferior a 10<sup>606</sup>.<br/>";
+  }
+  else {
+    if(/\d[ ]?[A-Z]{3}$/.test(num) || /^[A-Z]{3}[ ]?[-−]?\d/.test(num) || /\d[ ]?[€\$£¥₩₽ɱ₿]$/.test(num)){
+    resultat = "<b>Divisa</b><br/>";
+    if ((currency == "") || (currency == " amb ")) {
+      resultat += "El codi de divisa no es reconeix.<br/>" 
+      }
+    else {
+    resultat += currency + "<br/>";
+    }
+    } 
+    else {
+    if (cardinal_masc) {
+    resultat = "<b>Cardinal</b><br/>";
+    if (cardinal_masc === cardinal_fem) {
+      resultat += cardinal_masc+"<br/>";
+    } else {
+      resultat += "Masculí: " + cardinal_masc + "<br/>" + "Femení: " + cardinal_fem + "<br/>" ; 
+    }
+    if (/\bun$/.test(cardinal_masc)) {
+      flag_one=true;
+    }
 
-  if (cardinal_masc) {
-   resultat = "<b>Cardinal</b><br/>";
-   if (cardinal_masc === cardinal_fem) {
-    resultat += cardinal_masc+"<br/>";
-   } else {
-    resultat += "Masculí: " + cardinal_masc + "<br/>" 
-              + "Femení: " + cardinal_fem + "<br/>" ; 
-   }
-   if (ordinal) {
+    if (ordinal) {
     resultat += "<b>Ordinal</b><br/>";
-    resultat += "Masculí: " + ordinal + "<br/>";
-    resultat += "Femení: " + ordinal_fem + "<br/>";
-   }
+    resultat += "Masculí: " + ordinal + " (" + ordinal_number + ")<br/>";
+    resultat += "Femení: " + ordinal_fem + " (" + ordinal_number_fem + ")<br/>";
+    }
+    }
+    }
+  }  
+  document.getElementById("resultat").innerHTML=resultat;
+  
+  if(flag_one) {
+    warning = "<b>Atenció</b>:";
+    warning += " els nombres acabats en \"un\" s'usen acabats en \"u\" si indiquen ordre d'aparició, de col·locació o de successió, com a sinònim de primer. També es pot usar la forma acabada en \"u\" per a referir-se al nom del nombre natural o per a comptar.";
+  }
+  document.getElementById("warning").innerHTML=warning;
+}
 
-   document.getElementById("resultat").innerHTML=resultat;
+ function UpdateNumbertextRules() {
+
+ var variants = document.getElementsByName('variant');
+ for (i = 0; i < variants.length; i++) {
+  if (variants[i].type == 'radio' && variants[i].checked) {
+    lang = variants[i].value;
   }
  }
+ numlang=new Soros(rules, lang);
+ ConvertNumberToText();
+}
