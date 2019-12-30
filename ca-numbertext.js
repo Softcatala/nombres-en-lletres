@@ -397,14 +397,14 @@ XBT:(.+),(.+) $(\\2mm: bitcoin, bitcoins, de bitcoins, satoshi, satoshis, \\1) #
 ([--]?\\d+) $(p:$(ordinal \\2))
 
 == partitive-feminine ==
-([--]?\\d+) $(no-centes:($(f:$(p:($(ordinal \\1))))
+([--]?\\d+) $(no-centes:$(f:$(p:$(ordinal \\1))))
 
 
 == partitive(-masculine)?-plural ==
 ([--]?\\d+) $(pl:$(p:$(ordinal $(no-liard:\\2))))
 
 == partitive-feminine-plural ==
-([--]?\\d+) $(pl:$(f:$(p:$(ordinal $(no-liard:\\1)))))
+([--]?\\d+) $(no-centes:$(pl:$(f:$(p:$(ordinal $(no-liard:\\1))))))
 
 == fraction(-masculine)? ==
 ([--]?1)(/1)? $2
@@ -423,7 +423,7 @@ XBT:(.+),(.+) $(\\2mm: bitcoin, bitcoins, de bitcoins, satoshi, satoshis, \\1) #
 3 tern, terna, tercet, trio o treset
 4 qüern, tètrada, quartet, quatreta o quàdruple
 5 quintern, quintet, cinquet o quíntuple
-6 sextext, siset o sèxtuple
+6 sextet, siset o sèxtuple
 7 septet, setet o sèptuple
 8 octet o òctuple
 9 nònuple
