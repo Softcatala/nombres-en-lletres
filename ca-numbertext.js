@@ -190,6 +190,7 @@ f:(.*[^0-9]i)g$ \\1tja # mig -> mitja
 
 
 no-centes:(.*)centes(.*) \\1cents\\2
+no-centes:(.*) \\1
 
 # convert ordinal numbers (1st, 2nd, 3rd,... nth) to partitive (1, 1/2, 1/3, .... 1/n)
 p:(.*)primer$ \\1unitat
