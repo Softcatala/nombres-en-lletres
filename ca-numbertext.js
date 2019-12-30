@@ -1,5 +1,4 @@
-var rules=`
-^0 zero
+var rules=`^0 zero
 #1$ u
 1 un
 2 dos
@@ -143,8 +142,9 @@ pre3:10 centi
 [--](\\d+) menys |$1
 
 # decimals
-"([--]?\\d+)([.,]0*)?" $1
-"([--]?\\d+)[.,](\\d*)" $(\\1·\\2)
+"([^,]*\\d)[.]((\\d{3})+)([,][^,.]*)?" $(\\1\\2\\4)
+"([--]?\\d+)([,]0*)?" $1
+"([--]?\\d+)[,](\\d*)" $(\\1·\\2)
 "([--]?\\d+·0*)([^0]00?)0*" $1| |$2
 "([--]?\\d+·0*)([^0])" $1| |$2
 "([--]?\\d+·0*)([^0]\\d)" $1| |$2
@@ -168,7 +168,7 @@ read:(\\d\\d)((\\d\\d)*)(\\d\\d\\d) $(read:\\1)| |$(read:\\2)| |$(read:\\4)
 
 
 # convert masculine forms to feminine forms
-# it can be run after: standard number conversion; and after ord, ord2, part functions.
+# it can be run after: standard number conversion; and after ordinal, partitive functions.
 ## runned with feminine function.
 f:(.*iliard)(.*) \\1$(f:\\2) # convert only <1,000,000,000
 f:(.*ili)(.*) \\1$(f:\\2) # convert only <100,0000
@@ -189,8 +189,38 @@ f:(.*è[sc]i)m$ \\1ma # milionèsim -> milionèsima
 f:(.*[^0-9]i)g$ \\1tja # mig -> mitja
 
 
+no-centes:(.*)centes(.*) \\1cents\\2
+
+# convert ordinal numbers (1st, 2nd, 3rd,... nth) to partitive (1, 1/2, 1/3, .... 1/n)
+p:(.*)primer$ \\1unitat
+p:(.*)segon$ \\1mig
+p:(.*)tercer$ \\1terç
+p:(.*quart)$ \\1
+p:(.*)des[èé]$ \\1dècim
+p:((.*)cent)[èé]$ \\1èsim
+p:((.*)mil)[èé]$ \\1·lèsim
+p:((.*)ilion)[èé]$ \\1èsim
+p:((.*)iliard)[èé]$ \\1èsim
+
+
 # fallback, ignore 1-letter not-defined fuctions
 .:(.*) \\1
+
+# runned after ordinal and partitive fuctions
+pl:(.*[^\d][nrtnec])$ \\1s
+pl:(.*[^\d])ig$ \\1igs # mig -> mitjos
+pl:(.*[^\d])ja$ \\1ges
+pl:(.*[^\d])a$ \\1es
+pl:(.*[^\d])[èé]$ \\1ens
+# after ord2: 1r->1rs, 2n->2ns, 5è->5ns, ...
+pl:(\d+[rnrt])$ \\1s # 1r -> 1rs, 2n -> 2ns, 4t -> 4ts
+pl:(\d+)[èé]$ \\1ns # 5è -> 5ns
+pl:(\d+)a$ \\1es # 2a -> 2es
+# after partitive
+pl:([^[0-9]*[sç])$ \\1os # dos -> dosos, terç > terços
+pl:([^[0-9]*è[sc]im)$ \\1s # dècim -> dècims
+#fallback
+pl:(.*) \\1
 
 
 # unit/subunit singular/plural
@@ -291,7 +321,7 @@ XBT:(.+),(.+) $(\\2mm: bitcoin, bitcoins, de bitcoins, satoshi, satoshis, \\1) #
 
 "([^ ]+)[ ]?€$" $(EUR \\1)
 "([^ ]+)[ ]?£$" $(GBP \\1)
-"([^ ]+)[ ]?\$$" $(USD \\1)
+"([^ ]+)[ ]?\\$$" $(USD \\1)
 "([^ ]+)[ ]?¥$" $(JPY \\1)
 "([^ ]+)[ ]?₩$" $(KRW \\1)
 "([^ ]+)[ ]?₽$" $(RUB \\1)
@@ -320,29 +350,34 @@ XBT:(.+),(.+) $(\\2mm: bitcoin, bitcoins, de bitcoins, satoshi, satoshis, \\1) #
 4 quart
 (\\d+)$ $(ordinal $2)
 "un ([^ ]*(ilió|iliard))$" $(ordinal \\2)
-(.*li)ó \\2onè
-(.*(cent|mil|ion|iliard))s? \\2è
-"(.* )u" \\2uné # [:ca-valencia:] [:ca-ES-valencia:]
-"(.* )u" \\2unè
-(.*-)u \\2uné # [:ca-valencia:] [:ca-ES-valencia:]
-(.*-)u \\2unè
-(.*)cinc \\2cinqué # [:ca-valencia:] [:ca-ES-valencia:]
-(.*)cinc \\2cinquè
-(.*)dènou \\2denové # [:ca-valencia:] [:ca-ES-valencia:]
-(.*)nou \\2nové # [:ca-valencia:] [:ca-ES-valencia:]
-(.*)nou \\2novè
-(.*)deu \\2desé # [:ca-valencia:] [:ca-ES-valencia:]
-(.*)deu \\2desè
-(.*)díhuit \\2dihuitè # [:ca-valencia:] [:ca-ES-valencia:]
-(.*)[ae] \\2é # [:ca-valencia:] [:ca-ES-valencia:]
-(.*)[ae] \\2è
-(.*)\\D \\2é # [:ca-valencia:] [:ca-ES-valencia:]
-(.*)\\D \\2è
+(.*li)ó$ \\2onè
+(.*(cent|mil|ion|iliard))s?$ \\2è
+"(.* )u$" \\2uné # [:ca-valencia:] [:ca-ES-valencia:]
+"(.* )u$" \\2unè
+(.*-)u$ \\2uné # [:ca-valencia:] [:ca-ES-valencia:]
+(.*-)u$ \\2unè
+"u" primer
+"un" primer
+"dos" segon
+"tres" terç
+"quatre" quart
+(.*)cinc$ \\2cinqué # [:ca-valencia:] [:ca-ES-valencia:]
+(.*)cinc$ \\2cinquè
+(.*)dènou$ \\2denové # [:ca-valencia:] [:ca-ES-valencia:]
+(.*)nou$ \\2nové # [:ca-valencia:] [:ca-ES-valencia:]
+(.*)nou$ \\2novè
+(.*)deu$ \\2desé # [:ca-valencia:] [:ca-ES-valencia:]
+(.*)deu$ \\2desè
+(.*)díhuit$ \\2dihuitè # [:ca-valencia:] [:ca-ES-valencia:]
+(.*)[ae]$ \\2é # [:ca-valencia:] [:ca-ES-valencia:]
+(.*)[ae]$ \\2è
+(.*\\D)$ \\2é # [:ca-valencia:] [:ca-ES-valencia:]
+(.*\\D)$ \\2è
 
 == ordinal-feminine ==
-
 ([-−]\\d+) ""
-(\\d+) $(f:$(ordinal-masculine \\1))
+\\d+[,.] ""
+(\\d+)$ $(no-centes:$(f:$(ordinal \\1)))
 
 == ordinal-number(-masculine)? ==
 
@@ -355,9 +390,84 @@ XBT:(.+),(.+) $(\\2mm: bitcoin, bitcoins, de bitcoins, satoshi, satoshis, \\1) #
 (\\d+)$ \\2è
 
 == ordinal-number-feminine ==
-
 (\\d+)$ \\1a
 
+== partitive(-masculine)? ==
+([--]?\\d+) $(p:$(ordinal \\2))
+
+== partitive-feminine ==
+([--]?\\d+) $(no-centes:($(f:$(p:($(ordinal \\1))))
+
+
+== partitive(-masculine)?-plural ==
+([--]?\\d+) $(pl:$(p:$(ordinal $(no-liard:\\2))))
+
+== partitive-feminine-plural ==
+([--]?\\d+) $(pl:$(f:$(p:$(ordinal $(no-liard:\\1)))))
+
+== fraction(-masculine)? ==
+([--]?1)(/1)? $2
+([--]?1)/([1-9]\\d*) $2| $(partitive \\3)
+([--]?\\d+)(/1)? $2
+([--]?\\d+)/([1-9]\\d*) $2| $(partitive-plural \\3)
+
+== fraction-feminine ==
+([--]?1)(/1)? $(f:$1)| unitat
+([--]?1)/([1-9]\\d*) $(f:$1)| $(partitive-feminine \\2)| part
+([--]?\\d+)(/1)? $(f:$1)| unitats
+([--]?\\d+)/([1-9]\\d*) $(f:$1)| $(partitive-feminine-plural \\2)| parts
+
+== collective ==
+2 parell, parella o duo
+3 tern, terna, tercet, trio o treset
+4 qüern, tètrada, quartet, quatreta o quàdruple
+5 quintern, quintet, cinquet o quíntuple
+6 sextext, siset o sèxtuple
+7 septet, setet o sèptuple
+8 octet o òctuple
+9 nònuple
+10 dècuple
+12 dotzena
+100 centenar
+144 grossa
+1000 miler
+
+== years ==
+2 bienni
+3 trienni
+4 quadrienni
+5 quinquenni
+6 sesenni
+7 septenni
+10 decenni
+12 duodecenni
+15 quindecenni
+20 vintenni o vicenni
+30 trentenni o tricenni
+40 quarantenni
+50 cinquantenni
+60 seixantenni
+70 setantenni
+80 huitantenni [:ca-valencia:] [:ca-ES-valencia:]
+80 vuitantenni
+90 norantenni
+100 centenni
+1000 mil·lenni
+
+== multiplicative ==
+2 doble o duple
+3 triple
+4 quàdruple
+5 quíntuple
+6 sèxtuple
+7 sèptuple
+8 òctuple
+9 nònuple
+10 dècuple
+12 duodècuple
+100 cèntuple
+1/10 subdècuple
+1/2 súbduple
 
 == help ==
 
@@ -382,6 +492,11 @@ XBT:(.+),(.+) $(\\2mm: bitcoin, bitcoins, de bitcoins, satoshi, satoshis, \\1) #
   var ordinal_number = numlang.run("ordinal-number " + num).replace(/\n/g,"<br>");
   var ordinal_fem = numlang.run("ordinal-feminine " + num).replace(/\n/g,"<br>");
   var ordinal_number_fem = numlang.run("ordinal-number-feminine " + num).replace(/\n/g,"<br>");
+  var fraction = numlang.run("fraction " + num).replace(/\n/g,"<br>");
+  var fraction_fem = numlang.run("fraction-feminine " + num).replace(/\n/g,"<br>");
+  var collective = numlang.run("collective " + num).replace(/\n/g,"<br>");
+  var multiplicative = numlang.run("multiplicative " + num).replace(/\n/g,"<br>");
+  var years = numlang.run("years " + num).replace(/\n/g,"<br>");
   var flag_one= false;
   
   if(num.length > 605) {
@@ -398,23 +513,40 @@ XBT:(.+),(.+) $(\\2mm: bitcoin, bitcoins, de bitcoins, satoshi, satoshis, \\1) #
     }
     } 
     else {
-    if (cardinal_masc) {
-    resultat = "<b>Cardinal</b><br/>";
-    if (cardinal_masc === cardinal_fem) {
-      resultat += cardinal_masc+"<br/>";
-    } else {
-      resultat += "Masculí: " + cardinal_masc + "<br/>" + "Femení: " + cardinal_fem + "<br/>" ; 
-    }
-    if (/\bun$/.test(cardinal_masc)) {
-      flag_one=true;
-    }
-
-    if (ordinal) {
-    resultat += "<b>Ordinal</b><br/>";
-    resultat += "Masculí: " + ordinal + " (" + ordinal_number + ")<br/>";
-    resultat += "Femení: " + ordinal_fem + " (" + ordinal_number_fem + ")<br/>";
-    }
-    }
+      if (cardinal_masc) {
+        resultat = "<b>Cardinal</b><br/>";
+        if (cardinal_masc === cardinal_fem) {
+          resultat += cardinal_masc+"<br/>";
+        }
+		else {
+          resultat += "Masculí: " + cardinal_masc + "<br/>" + "Femení: " + cardinal_fem + "<br/>" ; 
+        }
+        if (/\bun$/.test(cardinal_masc)) {
+          flag_one=true;
+        }
+        if (ordinal) {
+          resultat += "<b>Ordinal</b><br/>";
+          resultat += "Masculí: " + ordinal + " (" + ordinal_number + ")<br/>";
+          resultat += "Femení: " + ordinal_fem + " (" + ordinal_number_fem + ")<br/>";
+        }
+        if (collective) {
+          resultat += "<b>Col·lectiu</b><br/>";
+          resultat += collective + "<br/>";
+        }
+	    if (multiplicative) {
+          resultat += "<b>Multiplicatiu</b><br/>";
+          resultat += multiplicative + "<br/>";
+        }
+	    if (years) {
+          resultat += "<b>Període d'anys</b><br/>";
+          resultat += years + "<br/>";
+        }
+      }
+      if (fraction) {
+        resultat += "<b>Fracció</b><br/>";
+        resultat += "Masculí: " + fraction + "<br/>";
+        resultat += "Femení: " + fraction_fem + "<br/>";
+      }
     }
   }  
   document.getElementById("resultat").innerHTML=resultat;
@@ -437,3 +569,4 @@ XBT:(.+),(.+) $(\\2mm: bitcoin, bitcoins, de bitcoins, satoshi, satoshis, \\1) #
  numlang=new Soros(rules, lang);
  ConvertNumberToText();
 }
+
