@@ -420,24 +420,25 @@ XBT:(.+),(.+) $(\\2mm: bitcoin, bitcoins, de bitcoins, satoshi, satoshis, \\1) #
 
 == collective ==
 2 parell, parella o duo
-3 tern, terna, tercet, trio o treset
+3 tern, terna, tercet, trio, tríada o treset
 4 qüern, tètrada, quartet, quatreta o quàdruple
 5 quintern, quintet, cinquet o quíntuple
 6 sextet, siset o sèxtuple
 7 septet, setet o sèptuple
 8 octet o òctuple
 9 nònuple
-10 dècuple
+10 dècada o dècuple
 12 dotzena
 100 centenar
 144 grossa
 1000 miler
+10000 miríada
 
 == years ==
 2 bienni
 3 trienni
 4 quadrienni
-5 quinquenni
+5 quinquenni o lustre
 6 sesenni
 7 septenni
 10 decenni
@@ -475,12 +476,18 @@ XBT:(.+),(.+) $(\\2mm: bitcoin, bitcoins, de bitcoins, satoshi, satoshis, \\1) #
 "" $(1)|, $(2), $(3)\\n$(help feminine)$(help masculine)$(help ordinal-number-masculine)$(help ordinal-number-feminine)$(help ordinal-feminine)$(help ordinal-masculine)
 (feminine|masculine|ordinal(-number)?(-feminine|-masculine)?) \\1: $(\\1 1), $(\\1 2), $(\\1 3)\\n
 `
+
  var lang = "ca";
+ var lang_val = "ca-valencia";
+ var lang_bal ="ca-balear";
+ 
  var numlang=new Soros(rules, lang);
+ var numlang_val=new Soros(rules, lang_val);
+ var numlang_bal=new Soros(rules, lang_bal);
  
  document.getElementById('nombre').focus();
  
- UpdateNumbertextRules();
+ ConvertNumberToText();
  
  function ConvertNumberToText() {
   var num = document.getElementById("nombre").value.trim();
@@ -488,13 +495,29 @@ XBT:(.+),(.+) $(\\2mm: bitcoin, bitcoins, de bitcoins, satoshi, satoshis, \\1) #
   var warning="";
   var currency = numlang.run(num).replace(/\n/g,"<br>");
   var cardinal_masc = numlang.run("masculine " + num).replace(/\n/g,"<br>");
+  var cardinal_masc_val = numlang_val.run("masculine " + num).replace(/\n/g,"<br>");
+  var cardinal_masc_bal = numlang_bal.run("masculine " + num).replace(/\n/g,"<br>");
   var cardinal_fem = numlang.run("feminine " + num).replace(/\n/g,"<br>");
+  var cardinal_fem_val = numlang_val.run("feminine " + num).replace(/\n/g,"<br>");
+  var cardinal_fem_bal = numlang_bal.run("feminine " + num).replace(/\n/g,"<br>");
   var ordinal = numlang.run("ordinal " + num).replace(/\n/g,"<br>");
+  var ordinal_val = numlang_val.run("ordinal " + num).replace(/\n/g,"<br>");
   var ordinal_number = numlang.run("ordinal-number " + num).replace(/\n/g,"<br>");
+  var ordinal_bal = numlang_bal.run("ordinal " + num).replace(/\n/g,"<br>");
+  var ordinal_number_val = numlang_val.run("ordinal-number " + num).replace(/\n/g,"<br>");
+  var ordinal_number_bal = numlang_bal.run("ordinal-number " + num).replace(/\n/g,"<br>");
   var ordinal_fem = numlang.run("ordinal-feminine " + num).replace(/\n/g,"<br>");
+  var ordinal_fem_val = numlang_val.run("ordinal-feminine " + num).replace(/\n/g,"<br>");
+  var ordinal_fem_bal = numlang_bal.run("ordinal-feminine " + num).replace(/\n/g,"<br>");
   var ordinal_number_fem = numlang.run("ordinal-number-feminine " + num).replace(/\n/g,"<br>");
+  var ordinal_number_fem_val = numlang_val.run("ordinal-number-feminine " + num).replace(/\n/g,"<br>");
+  var ordinal_number_fem_bal = numlang_bal.run("ordinal-number-feminine " + num).replace(/\n/g,"<br>");
   var fraction = numlang.run("fraction " + num).replace(/\n/g,"<br>");
+  var fraction_val = numlang_val.run("fraction " + num).replace(/\n/g,"<br>");
+  var fraction_bal = numlang_bal.run("fraction " + num).replace(/\n/g,"<br>");
   var fraction_fem = numlang.run("fraction-feminine " + num).replace(/\n/g,"<br>");
+  var fraction_fem_val = numlang_val.run("fraction-feminine " + num).replace(/\n/g,"<br>");
+  var fraction_fem_bal = numlang_bal.run("fraction-feminine " + num).replace(/\n/g,"<br>");
   var collective = numlang.run("collective " + num).replace(/\n/g,"<br>");
   var multiplicative = numlang.run("multiplicative " + num).replace(/\n/g,"<br>");
   var years = numlang.run("years " + num).replace(/\n/g,"<br>");
@@ -516,37 +539,87 @@ XBT:(.+),(.+) $(\\2mm: bitcoin, bitcoins, de bitcoins, satoshi, satoshis, \\1) #
     else {
       if (cardinal_masc) {
         resultat = "<b>Cardinal</b><br/>";
-        if (cardinal_masc === cardinal_fem) {
-          resultat += cardinal_masc+"<br/>";
+        if (cardinal_masc === cardinal_fem){
+          resultat += cardinal_masc;
+        if (cardinal_masc_val !== cardinal_masc) {
+          resultat += ", " + cardinal_masc_val + " (val.)";
         }
-		else {
-          resultat += "Masculí: " + cardinal_masc + "<br/>" + "Femení: " + cardinal_fem + "<br/>" ; 
+  	    if (cardinal_masc_bal !== cardinal_masc) {
+  	      resultat += ", " + cardinal_masc_bal + " (bal.)";
         }
+        resultat += "<br/>";      
+      }
+      else {
+        resultat += "Masculí: " + cardinal_masc;
+        if (cardinal_masc_val !== cardinal_masc) {
+          resultat += ", " + cardinal_masc_val + " (val.)";
+        }
+        if (cardinal_masc_bal !== cardinal_masc) {
+          resultat += ", " + cardinal_masc_bal + " (bal.)";
+        }
+        resultat += "<br/>";
+        resultat += "Femení: " + cardinal_fem; 
+        if (cardinal_fem_val !== cardinal_fem) {
+          resultat += ", " + cardinal_fem_val + " (val.)";
+        }
+        if (cardinal_fem_bal !== cardinal_fem) {
+          resultat += ", " + cardinal_fem_bal + " (bal.)";
+        }
+        resultat += "<br/>";
+      }
         if (/\bun$/.test(cardinal_masc)) {
           flag_one=true;
         }
         if (ordinal) {
           resultat += "<b>Ordinal</b><br/>";
-          resultat += "Masculí: " + ordinal + " (" + ordinal_number + ")<br/>";
-          resultat += "Femení: " + ordinal_fem + " (" + ordinal_number_fem + ")<br/>";
+          resultat += "Masculí: " + ordinal + " " + ordinal_number;
+          if (ordinal_val !== ordinal) {
+            resultat += ", " + ordinal_val + " " + ordinal_number_val + " (val.)";
+          }
+          if (ordinal_bal !== ordinal) {
+            resultat += ", " + ordinal_bal + " " + ordinal_number_bal + " (bal.)";
+          }
+          resultat += "<br/>";
+          resultat += "Femení: " + ordinal_fem + " " + ordinal_number_fem;
+          if (ordinal_fem_val !== ordinal_fem) {
+            resultat += ", " + ordinal_fem_val + " " + ordinal_number_fem_val + " (val.)";
+          }
+          if (ordinal_fem_bal !== ordinal_fem) {
+            resultat += ", " + ordinal_fem_bal + " " + ordinal_number_fem_bal + " (bal.)";
+          }
+          resultat += "<br/>";
         }
         if (collective) {
           resultat += "<b>Col·lectiu</b><br/>";
           resultat += collective + "<br/>";
         }
-	    if (multiplicative) {
+        if (multiplicative) {
           resultat += "<b>Multiplicatiu</b><br/>";
           resultat += multiplicative + "<br/>";
         }
-	    if (years) {
+        if (years) {
           resultat += "<b>Període d'anys</b><br/>";
           resultat += years + "<br/>";
         }
       }
       if (fraction) {
         resultat += "<b>Fracció</b><br/>";
-        resultat += "Masculí: " + fraction + "<br/>";
-        resultat += "Femení: " + fraction_fem + "<br/>";
+        resultat += "Masculí: " + fraction;
+        if (fraction_val !== fraction) {
+          resultat += ", " + fraction_val + " (val.)";
+        }
+        if (fraction_bal !== fraction) {
+          resultat += ", " + fraction_bal + " (bal.)";
+        }
+        resultat += "<br/>";
+        resultat += "Femení: " + fraction_fem;
+        if (fraction_fem_val !== fraction_fem) {
+          resultat += ", " + fraction_fem_val + " (val.)";
+        }
+        if (fraction_fem_bal !== fraction_fem) {
+          resultat += ", " + fraction_fem_bal + " (bal.)";
+        }
+        resultat += "<br/>";
       }
     }
   }  
@@ -557,17 +630,5 @@ XBT:(.+),(.+) $(\\2mm: bitcoin, bitcoins, de bitcoins, satoshi, satoshis, \\1) #
     warning += " els nombres acabats en \"un\" s'usen acabats en \"u\" si indiquen ordre d'aparició, de col·locació o de successió, com a sinònim de primer. També es pot usar la forma acabada en \"u\" per a referir-se al nom del nombre natural o per a comptar.";
   }
   document.getElementById("warning").innerHTML=warning;
-}
-
- function UpdateNumbertextRules() {
-
- var variants = document.getElementsByName('variant');
- for (i = 0; i < variants.length; i++) {
-  if (variants[i].type == 'radio' && variants[i].checked) {
-    lang = variants[i].value;
-  }
- }
- numlang=new Soros(rules, lang);
- ConvertNumberToText();
 }
 
