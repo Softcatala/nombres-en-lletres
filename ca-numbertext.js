@@ -19,6 +19,7 @@ var rules=`^0 zero
 15 quinze
 16 setze
 17 dèsset # [:ca-valencia:] [:ca-ES-valencia:]
+17 desset # [:ca-balear:] [:ca-ES-balear:]
 17 disset
 18 devuit # [:ca-balear:] [:ca-ES-balear:]
 18 díhuit # [:ca-valencia:] [:ca-ES-valencia:]
@@ -352,7 +353,8 @@ XBT:(.+),(.+) $(\\2mm: bitcoin, bitcoins, de bitcoins, satoshi, satoshis, \\1) #
 (\\d+)$ $(ordinal $2)
 "un ([^ ]*(ilió|iliard))$" $(ordinal \\2)
 (.*li)ó$ \\2onè
-(.*(cent|mil|ion|iliard))s?$ \\2è
+(.*(cent|mil|ion|iliard))s?$ \\2é # [:ca-valencia:] [:ca-ES-valencia:]
+(.*(cent|mil|ion|iliard))s?$ \\2è 
 "(.* )u$" \\2uné # [:ca-valencia:] [:ca-ES-valencia:]
 "(.* )u$" \\2unè
 (.*-)u$ \\2uné # [:ca-valencia:] [:ca-ES-valencia:]
@@ -369,7 +371,8 @@ XBT:(.+),(.+) $(\\2mm: bitcoin, bitcoins, de bitcoins, satoshi, satoshis, \\1) #
 (.*)nou$ \\2novè
 (.*)deu$ \\2desé # [:ca-valencia:] [:ca-ES-valencia:]
 (.*)deu$ \\2desè
-(.*)díhuit$ \\2dihuitè # [:ca-valencia:] [:ca-ES-valencia:]
+(.*)dèsset$ \\2desseté # [:ca-valencia:] [:ca-ES-valencia:]
+(.*)díhuit$ \\2dihuité # [:ca-valencia:] [:ca-ES-valencia:]
 (.*)[ae]$ \\2é # [:ca-valencia:] [:ca-ES-valencia:]
 (.*)[ae]$ \\2è
 (.*\\D)$ \\2é # [:ca-valencia:] [:ca-ES-valencia:]
@@ -441,7 +444,7 @@ XBT:(.+),(.+) $(\\2mm: bitcoin, bitcoins, de bitcoins, satoshi, satoshis, \\1) #
 5 quinquenni o lustre
 6 sesenni
 7 septenni
-10 decenni
+10 dècada o decenni
 12 duodecenni
 15 quindecenni
 20 vintenni o vicenni
@@ -453,7 +456,7 @@ XBT:(.+),(.+) $(\\2mm: bitcoin, bitcoins, de bitcoins, satoshi, satoshis, \\1) #
 80 huitantenni [:ca-valencia:] [:ca-ES-valencia:]
 80 vuitantenni
 90 norantenni
-100 centenni
+100 segle o centenni
 1000 mil·lenni
 
 == multiplicative ==
@@ -602,7 +605,7 @@ XBT:(.+),(.+) $(\\2mm: bitcoin, bitcoins, de bitcoins, satoshi, satoshis, \\1) #
           resultat += years + "<br/>";
         }
       }
-      if (fraction) {
+      if (fraction && (!cardinal_masc)) {
         resultat += "<b>Fracció</b><br/>";
         resultat += "Masculí: " + fraction;
         if (fraction_val !== fraction) {
