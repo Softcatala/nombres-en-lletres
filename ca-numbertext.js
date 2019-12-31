@@ -352,6 +352,7 @@ XBT:(.+),(.+) $(\\2mm: bitcoin, bitcoins, de bitcoins, satoshi, satoshis, \\1) #
 4 quart
 (\\d+)$ $(ordinal $2)
 "un ([^ ]*(ilió|iliard))$" $(ordinal \\2)
+(.*li)ó$ \\2oné # [:ca-valencia:] [:ca-ES-valencia:]
 (.*li)ó$ \\2onè
 (.*(cent|mil|ion|iliard))s?$ \\2é # [:ca-valencia:] [:ca-ES-valencia:]
 (.*(cent|mil|ion|iliard))s?$ \\2è 
