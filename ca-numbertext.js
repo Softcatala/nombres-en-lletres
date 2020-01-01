@@ -64,22 +64,9 @@ var rules_ca = `
 1((0{6})+) un $(pre:$(count:\\1))lió
 1((\\d{6})+) un $(pre:$(count:\\1))lió $1
 # 2000000=2·10^6 -> dos milions
-(\\d{1,3})((0{6})+) $1 $(pre:$(count:\\2))lions
-(\\d{1,3})((\\d{6})+) $1 $(pre:$(count:\\2))lions $2
+(\\d{1,6})((0{6})+) $1 $(pre:$(count:\\2))lions
+(\\d{1,6})((\\d{6})+) $1 $(pre:$(count:\\2))lions $2
 
-# x-liards
-# 10000000000=10^9 -> un miliard
-1(000(0{6})+) un $(pre:$(count:\\1))liard
-1(\\d{3}(\\d{6})+) un $(pre:$(count:\\1))liard $1
-# 2000000000=2·10^9 -> dos miliards
-(\\d{1,3})(000(0{6})+) $1 $(pre:$(count:\\2))liards
-(\\d{1,3})(\\d{3}(\\d{6})+) $1 $(pre:$(count:\\2))liards $2
-
-
-# sometimes, we avoid -liard terms and use "thousand -lion" instead
-no-liard:(\\d{4,6})((0{6})+) $1 $(pre:$(count:\\2))lions
-no-liard:(\\d{4,6})((\\d{6})+) $1 $(pre:$(count:\\2))lions $3
-no-liard:(.*) $1
 
 # count number of 10^6, usefull for x-lions, and x-liards prefixes.
 count:.{0,5}? 0
@@ -406,10 +393,10 @@ XBT:(.+),(.+) $(\\2mm: bitcoin, bitcoins, de bitcoins, satoshi, satoshis, \\1) #
 
 
 == partitive(-masculine)?-plural ==
-([--]?\\d+) $(pl:$(p:$(ordinal $(no-liard:\\2))))
+([--]?\\d+) $(pl:$(p:$(ordinal $2)))
 
 == partitive-feminine-plural ==
-([--]?\\d+) $(no-centes:$(pl:$(f:$(p:$(ordinal $(no-liard:\\1))))))
+([--]?\\d+) $(no-centes:$(pl:$(f:$(p:$(ordinal $1)))))
 
 == fraction(-masculine)? ==
 ([--]?1)(/1)? $2
