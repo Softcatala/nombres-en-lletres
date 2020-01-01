@@ -1,4 +1,5 @@
-var rules=`^0 zero
+var rules_ca = `
+^0 zero
 #1$ u
 1 un
 2 dos
@@ -162,7 +163,7 @@ read:(\\d*[1-9])(00+)([1-9]\\d*) $(read:\\1)| |$(read:\\2) |$(read:\\3)
 read:(\\d$) $1
 read:0(\\d+) $(read:0)| |$(read:\\1)
 read:([1-9]\\d) $1
-read:([1-9]\\d\d) $1
+read:([1-9]\\d\\d) $1
 read:(\\d\\d\\d) $1
 read:(\\d\\d)((\\d\\d)+) $(read:\\1)| |$(read:\\2)
 read:(\\d\\d)((\\d\\d)*)(\\d\\d\\d) $(read:\\1)| |$(read:\\2)| |$(read:\\4)
@@ -209,15 +210,15 @@ p:((.*)iliard)[èé]$ \\1èsim
 .:(.*) \\1
 
 # runned after ordinal and partitive fuctions
-pl:(.*[^\d][nrtnec])$ \\1s
-pl:(.*[^\d])ig$ \\1igs # mig -> mitjos
-pl:(.*[^\d])ja$ \\1ges
-pl:(.*[^\d])a$ \\1es
-pl:(.*[^\d])[èé]$ \\1ens
+pl:(.*[^\\d][nrtnec])$ \\1s
+pl:(.*[^\\d])ig$ \\1igs # mig -> mitjos
+pl:(.*[^\\d])ja$ \\1ges
+pl:(.*[^\\d])a$ \\1es
+pl:(.*[^\\d])[èé]$ \\1ens
 # after ord2: 1r->1rs, 2n->2ns, 5è->5ns, ...
-pl:(\d+[rnrt])$ \\1s # 1r -> 1rs, 2n -> 2ns, 4t -> 4ts
-pl:(\d+)[èé]$ \\1ns # 5è -> 5ns
-pl:(\d+)a$ \\1es # 2a -> 2es
+pl:(\\d+[rnrt])$ \\1s # 1r -> 1rs, 2n -> 2ns, 4t -> 4ts
+pl:(\\d+)[èé]$ \\1ns # 5è -> 5ns
+pl:(\\d+)a$ \\1es # 2a -> 2es
 # after partitive
 pl:([^[0-9]*[sç])$ \\1os # dos -> dosos, terç > terços
 pl:([^[0-9]*è[sc]im)$ \\1s # dècim -> dècims
@@ -229,10 +230,10 @@ pl:(.*) \\1
 # million or greater part of the number name separated by "ili" pattern
 # before masculine to feminine conversion
 us(.).:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) $(\\1:\\7)| \\2
-up(.).:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) $(\\1\:\\7)| \\3
-ud(.).:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) $(\\1\:\\7)| \\4
-ss.(.):([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) $(\\1\:\\7)| \\5
-sp.(.):([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) $(\\1\:\\7)| \\6
+up(.).:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) $(\\1\\:\\7)| \\3
+ud(.).:([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) $(\\1\\:\\7)| \\4
+ss.(.):([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) $(\\1\\:\\7)| \\5
+sp.(.):([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*) $(\\1\\:\\7)| \\6
 
 # "mm" means masculine unit and masculine subunit
 # Usually used by Catalan users
@@ -307,8 +308,8 @@ XBT:(.+),(.+) $(\\2mm: bitcoin, bitcoins, de bitcoins, satoshi, satoshis, \\1) #
 "(([A-Z]{3}) [-−]?\\d+)[.,](\\d)" $1 amb $(\\2:|$(\\30),sp)
 "(([A-Z]{3}) [-−]?\\d+)[.,](\\d\\d)" $1 amb $(\\2:|$3,sp)
 
-# "([-−]?\\d+)([.,]\\d\+)? ([A-Z]{3})$" $(\\3 \\1 \\2)
-"([-−]?\\d+)([.,]\\d\+)? ([A-Z]{3})" $(\\3 \\1\\2)
+# "([-−]?\\d+)([.,]\\d\\+)? ([A-Z]{3})$" $(\\3 \\1 \\2)
+"([-−]?\\d+)([.,]\\d\\+)? ([A-Z]{3})" $(\\3 \\1\\2)
 
 
 # currency symbols
@@ -479,160 +480,5 @@ XBT:(.+),(.+) $(\\2mm: bitcoin, bitcoins, de bitcoins, satoshi, satoshis, \\1) #
 
 "" $(1)|, $(2), $(3)\\n$(help feminine)$(help masculine)$(help ordinal-number-masculine)$(help ordinal-number-feminine)$(help ordinal-feminine)$(help ordinal-masculine)
 (feminine|masculine|ordinal(-number)?(-feminine|-masculine)?) \\1: $(\\1 1), $(\\1 2), $(\\1 3)\\n
+
 `
-
- var lang = "ca";
- var lang_val = "ca-valencia";
- var lang_bal ="ca-balear";
- 
- var numlang=new Soros(rules, lang);
- var numlang_val=new Soros(rules, lang_val);
- var numlang_bal=new Soros(rules, lang_bal);
- 
- document.getElementById('nombre').focus();
- 
- ConvertNumberToText();
- 
- function ConvertNumberToText() {
-  var num = document.getElementById("nombre").value.trim();
-  var resultat="";
-  var warning="";
-  var currency = numlang.run(num).replace(/\n/g,"<br>");
-  var cardinal_masc = numlang.run("masculine " + num).replace(/\n/g,"<br>");
-  var cardinal_masc_val = numlang_val.run("masculine " + num).replace(/\n/g,"<br>");
-  var cardinal_masc_bal = numlang_bal.run("masculine " + num).replace(/\n/g,"<br>");
-  var cardinal_fem = numlang.run("feminine " + num).replace(/\n/g,"<br>");
-  var cardinal_fem_val = numlang_val.run("feminine " + num).replace(/\n/g,"<br>");
-  var cardinal_fem_bal = numlang_bal.run("feminine " + num).replace(/\n/g,"<br>");
-  var ordinal = numlang.run("ordinal " + num).replace(/\n/g,"<br>");
-  var ordinal_val = numlang_val.run("ordinal " + num).replace(/\n/g,"<br>");
-  var ordinal_number = numlang.run("ordinal-number " + num).replace(/\n/g,"<br>");
-  var ordinal_bal = numlang_bal.run("ordinal " + num).replace(/\n/g,"<br>");
-  var ordinal_number_val = numlang_val.run("ordinal-number " + num).replace(/\n/g,"<br>");
-  var ordinal_number_bal = numlang_bal.run("ordinal-number " + num).replace(/\n/g,"<br>");
-  var ordinal_fem = numlang.run("ordinal-feminine " + num).replace(/\n/g,"<br>");
-  var ordinal_fem_val = numlang_val.run("ordinal-feminine " + num).replace(/\n/g,"<br>");
-  var ordinal_fem_bal = numlang_bal.run("ordinal-feminine " + num).replace(/\n/g,"<br>");
-  var ordinal_number_fem = numlang.run("ordinal-number-feminine " + num).replace(/\n/g,"<br>");
-  var ordinal_number_fem_val = numlang_val.run("ordinal-number-feminine " + num).replace(/\n/g,"<br>");
-  var ordinal_number_fem_bal = numlang_bal.run("ordinal-number-feminine " + num).replace(/\n/g,"<br>");
-  var fraction = numlang.run("fraction " + num).replace(/\n/g,"<br>");
-  var fraction_val = numlang_val.run("fraction " + num).replace(/\n/g,"<br>");
-  var fraction_bal = numlang_bal.run("fraction " + num).replace(/\n/g,"<br>");
-  var fraction_fem = numlang.run("fraction-feminine " + num).replace(/\n/g,"<br>");
-  var fraction_fem_val = numlang_val.run("fraction-feminine " + num).replace(/\n/g,"<br>");
-  var fraction_fem_bal = numlang_bal.run("fraction-feminine " + num).replace(/\n/g,"<br>");
-  var collective = numlang.run("collective " + num).replace(/\n/g,"<br>");
-  var multiplicative = numlang.run("multiplicative " + num).replace(/\n/g,"<br>");
-  var years = numlang.run("years " + num).replace(/\n/g,"<br>");
-  var flag_one= false;
-  
-  if(num.length > 605) {
-    resultat = "<b>Atenció</b>: el nombre ha ser inferior a 10<sup>606</sup>.<br/>";
-  }
-  else {
-    if(/\d[ ]?[A-Z]{3}$/.test(num) || /^[A-Z]{3}[ ]?[-−]?\d/.test(num) || /\d[ ]?[€\$£¥₩₽ɱ₿]$/.test(num)){
-    resultat = "<b>Divisa</b><br/>";
-    if ((currency == "") || (currency == " amb ")) {
-      resultat += "El codi de divisa no es reconeix.<br/>" 
-      }
-    else {
-    resultat += currency + "<br/>";
-    }
-    } 
-    else {
-      if (cardinal_masc) {
-        resultat = "<b>Cardinal</b><br/>";
-        if (cardinal_masc === cardinal_fem){
-          resultat += cardinal_masc;
-        if (cardinal_masc_val !== cardinal_masc) {
-          resultat += ", " + cardinal_masc_val + " (val.)";
-        }
-  	    if (cardinal_masc_bal !== cardinal_masc) {
-  	      resultat += ", " + cardinal_masc_bal + " (bal.)";
-        }
-        resultat += "<br/>";      
-      }
-      else {
-        resultat += "Masculí: " + cardinal_masc;
-        if (cardinal_masc_val !== cardinal_masc) {
-          resultat += ", " + cardinal_masc_val + " (val.)";
-        }
-        if (cardinal_masc_bal !== cardinal_masc) {
-          resultat += ", " + cardinal_masc_bal + " (bal.)";
-        }
-        resultat += "<br/>";
-        resultat += "Femení: " + cardinal_fem; 
-        if (cardinal_fem_val !== cardinal_fem) {
-          resultat += ", " + cardinal_fem_val + " (val.)";
-        }
-        if (cardinal_fem_bal !== cardinal_fem) {
-          resultat += ", " + cardinal_fem_bal + " (bal.)";
-        }
-        resultat += "<br/>";
-      }
-        if (/\bun$/.test(cardinal_masc)) {
-          flag_one=true;
-        }
-        if (ordinal) {
-          resultat += "<b>Ordinal</b><br/>";
-          resultat += "Masculí: " + ordinal + " " + ordinal_number;
-          if (ordinal_val !== ordinal) {
-            resultat += ", " + ordinal_val + " " + ordinal_number_val + " (val.)";
-          }
-          if (ordinal_bal !== ordinal) {
-            resultat += ", " + ordinal_bal + " " + ordinal_number_bal + " (bal.)";
-          }
-          resultat += "<br/>";
-          resultat += "Femení: " + ordinal_fem + " " + ordinal_number_fem;
-          if (ordinal_fem_val !== ordinal_fem) {
-            resultat += ", " + ordinal_fem_val + " " + ordinal_number_fem_val + " (val.)";
-          }
-          if (ordinal_fem_bal !== ordinal_fem) {
-            resultat += ", " + ordinal_fem_bal + " " + ordinal_number_fem_bal + " (bal.)";
-          }
-          resultat += "<br/>";
-        }
-        if (collective) {
-          resultat += "<b>Col·lectiu</b><br/>";
-          resultat += collective + "<br/>";
-        }
-        if (multiplicative) {
-          resultat += "<b>Multiplicatiu</b><br/>";
-          resultat += multiplicative + "<br/>";
-        }
-        if (years) {
-          resultat += "<b>Període d'anys</b><br/>";
-          resultat += years + "<br/>";
-        }
-      }
-      if (fraction && (!cardinal_masc)) {
-        resultat += "<b>Fracció</b><br/>";
-        resultat += "Masculí: " + fraction;
-        if (fraction_val !== fraction) {
-          resultat += ", " + fraction_val + " (val.)";
-        }
-        if (fraction_bal !== fraction) {
-          resultat += ", " + fraction_bal + " (bal.)";
-        }
-        resultat += "<br/>";
-        resultat += "Femení: " + fraction_fem;
-        if (fraction_fem_val !== fraction_fem) {
-          resultat += ", " + fraction_fem_val + " (val.)";
-        }
-        if (fraction_fem_bal !== fraction_fem) {
-          resultat += ", " + fraction_fem_bal + " (bal.)";
-        }
-        resultat += "<br/>";
-      }
-    }
-  }  
-  document.getElementById("resultat").innerHTML=resultat;
-  
-  if(flag_one) {
-    warning = "<b>Atenció</b>:";
-    warning += " els nombres acabats en \"un\" s'usen acabats en \"u\" si indiquen ordre d'aparició, de col·locació o de successió, com a sinònim de primer. També es pot usar la forma acabada en \"u\" per a referir-se al nom del nombre natural o per a comptar.";
-  }
-  document.getElementById("warning").innerHTML=warning;
-}
-
