@@ -54,9 +54,9 @@
   }
   else {
     if(/\d[ ]?[A-Z]{3}$/.test(num) || /^[A-Z]{3}[ ]?[-−]?\d/.test(num) || /\d[ ]?[€\$£¥₩₽ɱ₿]$/.test(num)){
-    resultat = "<b>Divisa</b><br/>";
-    if ((currency == "") || (currency == " amb ")) {
-      resultat += "El codi de divisa no es reconeix.<br/>" 
+      resultat = "<b>Divisa</b><br/>";
+      if ((currency == "") || (currency == " amb ")) {
+        resultat += "El codi de divisa no es reconeix.<br/>" 
       }
     else {
     resultat += currency + "<br/>";
