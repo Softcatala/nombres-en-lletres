@@ -121,15 +121,15 @@
 	    }
         if (collective) {
           resultat += "<b>Col·lectiu</b><br/>";
-          resultat += "<span id=\"coll\">" + collective + "</span> <input id=\"coll\" type=\"submit\" value=\"&#128266;\" onclick=\"speak_text('coll', 'coll_parla');return false;\"><br/>";
+          resultat += "<span id=\"coll\">" + collective + "</span> <input id=\"coll_parla\" type=\"submit\" value=\"&#128266;\" onclick=\"speak_text('coll', 'coll_parla');return false;\"><br/>";
         }
         if (multiplicative) {
           resultat += "<b>Multiplicatiu</b><br/>";
-          resultat += "<span id=\"mult\">" + multiplicative + "</span> <input id=\"mult\" type=\"submit\" value=\"&#128266;\" onclick=\"speak_text('mult', 'mult_parla');return false;\"><br/>";
+          resultat += "<span id=\"mult\">" + multiplicative + "</span> <input id=\"mult_parla\" type=\"submit\" value=\"&#128266;\" onclick=\"speak_text('mult', 'mult_parla');return false;\"><br/>";
         }
         if (years) {
           resultat += "<b>Període d'anys</b><br/>";
-          resultat += "<span id=\"anys\">" + years + "</span> <input id=\"anys\" type=\"submit\" value=\"&#128266;\" onclick=\"speak_text('anys', 'anys_parla');return false;\"><br/>";
+          resultat += "<span id=\"anys\">" + years + "</span> <input id=\"anys_parla\" type=\"submit\" value=\"&#128266;\" onclick=\"speak_text('anys', 'anys_parla');return false;\"><br/>";
         }
       }
       if (fraction && (!cardinal_masc)) {
